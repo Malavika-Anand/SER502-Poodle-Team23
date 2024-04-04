@@ -1,0 +1,5 @@
+SER 502 Project Team 23
+
+Milestone 1
+
+    Git Hub Repository created with project structure 
