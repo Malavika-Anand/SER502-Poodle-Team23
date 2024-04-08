@@ -3,4 +3,10 @@ SER 502 Project Team 23
 Milestone 1
 
     - Git Hub Repository created with project structure.
-    - Project Description Document - Written by all the team members through various in-person brainstorming meetings for language design.
+    - Project Description Document: Written by all the team members through various in-person brainstorming meetings for language design.
+
+Future Contributions for Milestone 2(Final Submission):
+    - Malavika: Lexer
+    - Vipsa: Parser
+    - Shloka: interpreter
+    - All memebers: Test scripts
