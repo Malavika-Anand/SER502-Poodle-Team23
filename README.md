@@ -1,1 +1,1 @@
-# SER502-ProloStar-Team23
+# SER502-Poodle-Team23
