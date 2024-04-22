@@ -98,6 +98,21 @@ eval_cmd(compact_for(VarName, E1, E2, Block), Env, NewEnv) :-
    	eval_condition(condition(E1, t_comparison_operator(<), E2), Env1, false),
     eval_for_command(condition(VarName, >=, E2), pre_decrement(VarName), Block, Env1, NewEnv).
 
+/* LIST COMMAND */
+eval_cmd(list(VarName, Values), Env, NewEnv) :-
+    eval_values(Values, Env, List, Env1), 
+    update_env(Variable, List, Env1, NewEnv).
+
+% Evaluate a list of values
+eval_values([Value], Env, [EvalValue], EnvOut) :-
+    eval_expr(Value, Env, EvalValue, EnvOut). % Evaluate the single value
+
+eval_values([Value|Tail], Env, [EvalValue|EvalRest], NewEnv) :-
+    eval_expr(Value, Env, EvalValue, Env1), % Evaluate the first value
+    eval_values(Tail, Env1, EvalRest, NewEnv). % Evaluate the rest of the values recursively
+
+eval_values([], Env, [], Env).
+
 /* 
  * HELPER PREDICATES 
  */
@@ -240,7 +255,7 @@ update(Type, VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_,VarName,_), u
 
 /*  
     Things left to write: @Shloka
+    Ternary operator 
     Error handling
-    List command
-    Not bool operator
+    All commands
 */
