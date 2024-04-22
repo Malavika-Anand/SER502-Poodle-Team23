@@ -32,7 +32,7 @@ eval_cmd(print(Expression), Env, Env) :- eval_expression(Expression, Env, Result
  */ 
 eval_cmd(if(Condition,Block), Env, NewEnv) :- eval_condition(Condition,Env,true), 
     								eval_block(Block, Env, NewEnv).
-eval_cmd(if(Condition,Block), Env, Env) :- eval_condition(Condition,Env,false).
+eval_cmd(if(Condition,_Block), Env, Env) :- eval_condition(Condition,Env,false).
 
 /* 
  * IF ELSE COMMAND - eval_cmd(if_else(cond,block1,block2), Env, NewEnv)
@@ -51,31 +51,95 @@ eval_cmd(if_elseif_else(Condition, Block1,_ElIfCondition, _Block2), Env, NewEnv)
     						eval_condition(Condition,Env,true),
     						eval_block(Block1, Env, NewEnv).
 
-eval_cmd(if_elseif_else(Condition,Block1, ElIfCondition, _Block2), Env, NewEnv) :-
+eval_cmd(if_elseif_else(Condition,_Block1, ElIf, _Block2), Env, NewEnv) :-
     							eval_condition(Condition,Env,false),
-    							eval_elseif(Block2, Env, NewEnv,true).
+    							eval_elseif(ElIf, Env, NewEnv,true).
 
-eval_cmd(if_elseif_else(Condition,Block1, ElIfCondition, Block2), Env, NewEnv) :-
+eval_cmd(if_elseif_else(Condition,_Block1, ElIf, Block2), Env, NewEnv) :-
     							eval_condition(Condition,Env,false),
-    							eval_elseif(Block2, Env, Env,false),
-    							exal_block(Block2,Env, NewEnv).
+    							eval_elseif(ElIf, Env, Env,false),
+    							eval_block(Block2,Env, NewEnv).
+
+
+/*
+ * WHILE COMMAND
+ */
+eval_cmd(while(Condition,_C), Env, Env) :- eval_condition(Condition,Env,false).
+eval_cmd(while(Condition,Block), Env, NewEnv) :- eval_condition(Condition,Env,true),
+    						eval_block(Block, Env, Env2),
+    						eval_cmd(while(Condition,Block), Env2, NewEnv).
+
+
+/*
+ * FOR COMMAND
+ */
+eval_cmd(for(_, Condition, _, _Block), Env, Env) :-
+    eval_condition(Condition, Env, false).
+
+eval_cmd(for(Assignment, Condition, VariableIncDecExpr, Block), Env, NewEnv) :-
+    eval_cmd(Assignment, Env, Env1),
+    eval_condition(Condition, Env1, true),
+    eval_block(Block, Env2, Env3),
+    eval_inc_dec_expression(VariableIncDecExpr,Env1, Env2),
+    %i created this eval because I cannot use the eval cmd as it will again eval assignment cmd
+    eval_for_loop(Condition, VariableIncDecExpr, Block, Env3, NewEnv).
+
+/*
+ * COMPACT FORLOOP
+ */
+
+eval_cmd(compact_for(VarName, E1, E2, Block), Env, NewEnv) :- 
+    eval_cmd(assignment(variable_name(VarName), E1), Env, Env1),
+   	eval_condition(condition(E1, t_comparison_operator(>), E2), Env1, false),
+    eval_for_command(condition(VarName, <=, E2), pre_increment(VarName), Block, Env1, NewEnv).
+
+eval_cmd(compact_for(VarName, E1, E2, Block), Env, NewEnv) :- 
+    eval_cmd(assignment(variable_name(VarName), E1), Env, Env1),
+   	eval_condition(condition(E1, t_comparison_operator(<), E2), Env1, false),
+    eval_for_command(condition(VarName, >=, E2), pre_decrement(VarName), Block, Env1, NewEnv).
+
+/* 
+ * HELPER PREDICATES 
+ */
 
 eval_elseif(elseif(ElIfCondition, Block), Env, NewEnv, true) :- eval_condition(ElIfCondition,Env,true), 
     								eval_block(Block, Env, NewEnv).
-eval_elseif(elseif(ElIfCondition, Block), Env, Env, false) :- eval_condition(ElIfCondition,Env,false).
+eval_elseif(elseif(ElIfCondition, _Block), Env, Env, false) :- eval_condition(ElIfCondition,Env,false).
 
-eval_condition(t_condition(E1, Operator, E2), Env, Result) :-
+
+eval_for_loop(Condition, VariableIncDecExpr, Block, Env, NewEnv) :-
+     eval_condition(Condition, Env, true),
+     eval_block(Block, Env1, Env2),
+	 eval_inc_dec_expression(VariableIncDecExpr,Env, Env1), %@shloka
+	 eval_for_loop(Condition, VariableIncDecExpr, Block, Env2, NewEnv).
+
+eval_for_loop(Condition, _VariableIncDec, _Block, Env, Env) :-
+     eval_condition(Condition, Env, false).
+
+eval_inc_dec_expression(pre_increment(variable_name(VarName)), Env, NewEnv) :- 
+	eval_expression(increment(variable_name(VarName)), Env, NewEnv).
+
+eval_inc_dec_expression(post_increment(variable_name(VarName)), Env, NewEnv) :- 
+	eval_expression(increment(variable_name(VarName)), Env, NewEnv).
+
+eval_inc_dec_expression(pre_decrement(variable_name(VarName)), Env, NewEnv) :- 
+	eval_expression(decrement(variable_name(VarName)), Env, NewEnv).
+
+eval_inc_dec_expression(post_decrement(variable_name(VarName)), Env, NewEnv) :- 
+	eval_expression(decrement(variable_name(VarName)), Env, NewEnv).		
+
+
+/*
+eval_cmd(Command, Env, NewEnv) :- list_command(Command,Env,NewEnv).
+*/
+
+/* 
+ * Condition & Comparisons Evaluation
+ */
+eval_condition(condition(E1, Operator, E2), Env, Result) :-
     eval_expression(E1, Env, R1),
     eval_expression(E2, Env, R2),
     eval_comparison(R1, Operator, R2, Result).
-
-
-/*eval_cmd(Command, Env, NewEnv) :- forloop_command(Command,Env,NewEnv).
-eval_cmd(Command, Env, NewEnv) :- whileloop_command(Command,Env,NewEnv).
-eval_cmd(Command, Env, NewEnv) :- compact_forloop_command(Command,Env,NewEnv).
-eval_cmd(Command, Env, NewEnv) :- list_command(Command,Env,NewEnv).*/
-
-/* Eval Condition and Eval Comparisons */
 
 %keeping the Env same throughout the expr evaluation
 %brackets (Expression)
@@ -91,10 +155,12 @@ eval_expression(float(Value),_, Value).
 eval_expression(string(Value),_, Value).
 eval_expression(variable_name(Name),Env, Value) :- member((_,Name, Value),Env).
 
-eval_expression(increment(VarName), Env, NewEnv) :- lookup(VarName, Env, Val), 
-    													Value is Val+1, update(VarName, Value, Env, NewEnv).
-eval_expression(decrement(VarName), Env, NewEnv) :- lookup(VarName, Env, Val), 
-    													Value is Val-1, update(VarName, Value, Env, NewEnv).
+eval_expression(increment(variable_name(VarName)), Env, NewEnv) :- lookup(VarName, Env, Val), 
+    								Value is Val+1, 
+    								update(VarName, Value, Env, NewEnv).
+eval_expression(decrement(variable_name(VarName)), Env, NewEnv) :- lookup(VarName, Env, Val), 
+    								Value is Val-1, 
+    								update(VarName, Value, Env, NewEnv).
 
 
 %eval_expression(variable_name(Name), Env, Name) :- not(lookup(Name, _, Env)), string(Name).
@@ -102,6 +168,16 @@ eval_expression(bool_expr(E1, bool_op(Operator), E2), Env, Result) :-
     eval_expression(E1, Env, R1),
     eval_expression(E2, Env, R2),
     eval_bool(R1, Operator, R2, Result).
+
+%ternary expression
+eval_expression(ternary_expression(Condition, E1, _), Env, Result) :-
+    eval_condition(Condition, Env, true),
+    eval_expression(E1, Env, Result).
+
+eval_expression(ternary_expression(Condition, _, E2), Env, Result) :-
+    eval_condition(Condition, Env, false),
+    eval_expression(E2, Env, Result).
+
 
 /*boolean evaluation*/
 eval_bool(true, true).
@@ -164,7 +240,7 @@ update(Type, VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_,VarName,_), u
 
 /*  
     Things left to write: @Shloka
-    Ternary operator 
     Error handling
-    All commands
+    List command
+    Not bool operator
 */
