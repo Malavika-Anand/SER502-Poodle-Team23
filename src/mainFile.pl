@@ -8,7 +8,7 @@ read_custom_file(FileName, ConvertedData) :-
     % Read lines from the stream and convert them to a list of atoms
     read_custom_lines(Stream, FileData),
     % Close the stream
-    close_custom_file(Stream),
+    close(Stream),
     % Convert atoms to numbers if possible
     convert_atoms_custom(FileData, ConvertedData).
 
