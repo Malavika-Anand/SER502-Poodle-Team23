@@ -16,7 +16,7 @@ tokens = (
     'ASSIGN', 'DECREMENT', 'EQUAL', 'FLOAT', 'GREATER_EQUAL', 'GREATER', 'IDEN', 'INCREMENT',
     'LESSER_EQUAL', 'LESSER', 'MODULO', 'NUMBER', 'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'LPAREN',
     'RPAREN', 'NOT_EQUAL', 'POWER', 'SINGLE_QUOTES', 'STRING', 'LCURL', 'RCURL', 'COMMA', 'QMARK',
-    'SEMICOLON', 'COLON', 'LSQUARE', 'RSQUARE', 'PERIOD', 'EXCLAMATION',
+    'SEMICOLON', 'COLON', 'LSQUARE', 'RSQUARE', 'PERIOD', 'EXCLAMATION', 'PRINT', 'SPACE',
 )
 
 # Regular expression rules for simple tokens
@@ -56,11 +56,14 @@ t_COLON = r':'           # Colon
 t_LSQUARE = r'\['        # Left square bracket
 t_RSQUARE = r'\]'        # Right square bracket
 t_PERIOD = r'\.'         # Period
-t_EXCLAMATION = r'!'     # Exclamation mark
+t_EXCLAMATION = r'\!'     # Exclamation mark
+t_PRINT = r'\>>'
+t_SPACE = r'\s+'     # Blank space
+
 
 # Error handling rule
 def t_error(t):
-    print(f"Illegal character '{t.value[0]}'")  # Print error message
+    print(f"Illegal character '{t.value}'")  # Print error message
     t.lexer.skip(1)  # Skip the illegal character
 
 # Build the lexer
@@ -90,7 +93,12 @@ def read_input_file(filename):
 def write_tokens_to_file(tokens, filename):
     with open(filename, "w") as file:
         for tok in tokens:
-            file.write('{}\t'.format(tok.value))  # Write token value to file
+            if tok.value == '>>' or tok.value == '>>' or tok.value == '(' or tok.value == ')' or tok.value == '{' or tok.value == '}' or tok.value == '||' or tok.value == '!!' or tok.value == '!!=':
+                file.write("'{}'\n".format(tok.value))
+            elif tok.value == ' ' or tok.value == '\n':
+                continue
+            else:
+                file.write("{}\n".format(tok.value))
         print("Tokens Written in " + filename + ": " + Colors.GREEN +
               'Writing Successful' + Colors.DEFAULT)  # Print success message
 
