@@ -1,6 +1,6 @@
 :- use_module(tokenReader).
 :- use_module(parser).
-:- use_module(evaluator).
+:- use_module(interpreter).
 
 main_prog(NameOfFile) :- 
     write("Parser Status: "), ansi_format([bold, fg(Blue)], 'Started', []), nl,
