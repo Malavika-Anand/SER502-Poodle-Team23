@@ -23,6 +23,7 @@ eval_cmd(assignment_exp(variable_name(VarName), E1),Env, NewEnv) :-
 eval_cmd(declration_assignment_command(dataType(Type),variable_name(VarName), E1), Env, NewEnv) :- 
                                     eval_expression(E1, Env, R1), 
                                     update(Type, VarName, R1, Env, NewEnv).
+%when declaration setting up default value which is empty @Shloka
 %int a;
 eval_cmd(declration_assignment_command(dataType(Type), variable_name(Name)), Env, NewEnv) :- get_default_value(Type, Env, Value), update(Type, Name, Value, Env, NewEnv).    								
 
@@ -251,7 +252,7 @@ not(false, true).
 
 /*Looks up the value of the provided variable name -> lookup(Var, Env, Value)*/
 lookup(VarName,[(_,VarName,Value)|_],Value).
-lookup(VarName,[H|Tail],Value) :- H \= (_,VarName,_), lookup(VarName,Tail,Value).
+lookup(VarName,[H|Tail],Value) :- H \= (_ ,VarName,_), lookup(VarName,Tail,Value).
 lookup(VarName,[],_Value) :- write(VarName), write(" not found"), fail.
 
 /* Two kinds of update predicates with different parameters for 1. VarName = "dd"; 2. int VarName =1;*/
@@ -263,7 +264,7 @@ update(Name, Value, [(int , Name, _) | Env], [(int, Name, Value) | Env]) :-
     integer(Value).
 update(VarName, Value, [(float, VarName,_)|Tail], [(int, VarName, Value)|Tail]) :- float(Value).
 update(VarName, Value, [(string, VarName,_)|Tail], [(int, VarName, Value)|Tail]) :- string(Value).
-update(VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_,VarName,_), update(VarName, Value, Tail, UpdatedTail). 
+update(VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_ ,VarName, _), update(VarName, Value, Tail, UpdatedTail). 
 
 update(VarName, Value, [(int , VarName, _) | _], _)  :- not(integer(Value)), write("cannot assign other datatype to int varaible"), fail.
 update(VarName, Value, [(float, VarName, _) | _], _)  :- not(float(Value)),  write("cannot assign other datatype to float varaible"),fail.
@@ -283,4 +284,4 @@ update(Type,_VarName, Value, [], _) :- Type=string,not(string(Value)) , write("c
 
 %should not allow to redine the same var twice, regardless of the type and Env remians the same
 update(Type, VarName, Value, [(Type, VarName, _)| Tail], [(Type, VarName, Value)| Tail]) :- write("cannot redefine variable"),fail.
-update(Type, VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_,VarName,_), update(Type, VarName, Value, Tail, UpdatedTail). 
+update(Type, VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_ ,VarName, _), update(Type, VarName, Value, Tail, UpdatedTail).
