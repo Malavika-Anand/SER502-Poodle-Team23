@@ -18,5 +18,5 @@ read_stream(Stream, []) :- at_end_of_stream(Stream).
 
 % CONVERTS THE ATOMS TO NUMBERS IF ANY
 convert([H|T], [N|R]) :- atom_number(H, N), convert(T, R).
-convert([H|T], [H|R]) :- atom(H), convert(T, R).
-convert([], []).
+convert([H|T], [Term|R]) :- atom(H),term_to_atom(Term, H),convert(T, R).
+convert([], []). 

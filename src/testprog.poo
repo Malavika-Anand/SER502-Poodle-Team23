@@ -1,0 +1,73 @@
+int x;
+x = 3;
+int y = (4 * 6)/3;
+int i = 5;
+int z = x + y - z;
+int j;
+bool boolVar = true;
+float floatVar = 10.5;
+
+print>>"PRINT STATEMENT EXECUTED";
+print>>x;
+print>>10-5;
+print>>boolVar;
+print>>floatVar;
+print>>"hellew world";
+
+print>>"FOR LOOP";
+for(j=0; j<3; ++j) {
+    print>>j;
+}
+print>>"using syntactic sugar of post decrement in FORLOOP";
+for(j=0; j<3; ++j) {
+    print>>j;
+}
+print>>"COMPACT FOR LOOP";
+for i in range(1,3) {
+    print>>i;
+}
+
+print>>"IF ELSEIF ELSE,EXTRA FEATURE";
+int VarCaps = 7;
+if(VarCaps == 3){
+    print>>"Equal to 3";
+}
+elseif(VarCaps == 7){
+    print>>"Equal to 7";;
+}
+else{
+    print>>"God knows";
+}
+
+print>>"IF";
+if(!!false) {
+    print>>"if command works along with not operator"
+}
+
+print>>"IF ELSE";
+if(boolVar !!= false) {
+    print>>"if command works along with != operator"
+}
+else {
+    print>>"in else and works along with != operator"
+}
+
+print>>"WHILE LOOP";
+while(VarCaps<10){
+    print>>VarCaps;
+    VarCaps = VarCaps + 1;
+}
+
+print>>"BOOLEAN EXPRESSIONS AND COMPARISONS";
+bool orTestVar = true||false;
+bool andTestVar = true&&false;
+print>>"orTestVar";
+print>>orTestVar;
+print>>"andTestVar";
+print>>andTestVar;
+
+print>>"TERNARY EXPRESSION";
+int pi = (1>=2?3+4:5+6);
+print_expression(pi);
+
+print>>"END";

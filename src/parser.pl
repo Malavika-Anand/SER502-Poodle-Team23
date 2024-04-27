@@ -107,7 +107,7 @@ compact_Forloop_Command(compact_ForLoop_command(Variable, Expression1, Expressio
     [range],
     ['('],
     expression(Expression1),
-    [; ],
+    [,],
     expression(Expression2),
     [')'],
     block(Block).
@@ -124,8 +124,8 @@ exp(+(X, Y)) --> term(X), [+], exp(Y).
 exp(-(X, Y)) --> term(X), [-], exp(Y).
 exp(X) --> term(X).
 
-term((X, Y)) --> factor(X), [*], term(Y).
-term(\(X, Y)) --> factor(X), [/], term(Y).
+term(*(X, Y)) --> factor(X), [*], term(Y).
+term(/(X, Y)) --> factor(X), [/], term(Y).
 
 term(boolean(Operator, Y)) --> boolean_operator_not(Operator), expression(Y).
 term(boolean(X, Operator, Y)) --> expression(X), boolean_operator(Operator), expression(Y).

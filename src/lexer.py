@@ -93,7 +93,7 @@ def read_input_file(filename):
 def write_tokens_to_file(tokens, filename):
     with open(filename, "w") as file:
         for tok in tokens:
-            if tok.value == '>>' or tok.value == '>>' or tok.value == '(' or tok.value == ')' or tok.value == '{' or tok.value == '}' or tok.value == '||' or tok.value == '!!' or tok.value == '!!=':
+            if tok.value == '>>' or tok.value == '(' or tok.value == ')' or tok.value == '{' or tok.value == '}' or tok.value == '||' or tok.value == '!!' or tok.value == '!!=':
                 file.write("'{}'\n".format(tok.value))
             elif tok.value == ' ' or tok.value == '\n':
                 continue
