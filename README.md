@@ -37,10 +37,10 @@ augroup END
 3. Vipsa Kamani
 
 #Acknowledgments
-Dr. Ajay Bansal
-James Smith
+1. Dr. Ajay Bansal
+2. James Smith
 
-#Youtube Video Link
+#Youtube Video Link: https://youtu.be/odOh4-f9qrM 
 
  
 
