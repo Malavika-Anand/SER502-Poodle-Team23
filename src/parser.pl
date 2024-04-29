@@ -124,7 +124,7 @@ exp(+(X, Y)) --> term(X), [+], exp(Y).
 exp(-(X, Y)) --> term(X), [-], exp(Y).
 exp(X) --> term(X).
 
-term((X, Y)) --> factor(X), [], term(Y).
+term(*(X, Y)) --> factor(X), [*], term(Y).
 term(/(X, Y)) --> factor(X), [/], term(Y).
 
 term(boolean(Operator, Y)) --> boolean_operator_not(Operator), expression(Y).

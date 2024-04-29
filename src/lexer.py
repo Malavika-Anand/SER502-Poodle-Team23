@@ -108,7 +108,7 @@ def write_tokens_to_file(tokens, filename):
               'Writing Successful' + Colors.DEFAULT)  # Print success message
 
 # Main function
-if _name_ == '_main_':
+if __name__ == '__main__':
     print(Colors.BLUE + "Starting POODLE Lexer" + Colors.DEFAULT)  # Print starting message in blue
     parsed_args = parse_args()  # Parse command line arguments
     input_filename = parsed_args.input[0]  # Get input filename from arguments
