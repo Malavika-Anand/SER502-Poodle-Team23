@@ -310,6 +310,7 @@ int
 typMismatch
 =
 10.7
+
 ;
 print
 '>>'
