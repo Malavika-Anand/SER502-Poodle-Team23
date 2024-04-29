@@ -17,6 +17,29 @@ read_stream(Stream, [CurrentLineCharacters | List]) :-
 read_stream(Stream, []) :- at_end_of_stream(Stream).
 
 % CONVERTS THE ATOMS TO NUMBERS IF ANY
-convert([H|T], [N|R]) :- atom_number(H, N), convert(T, R).
-convert([H|T], [Term|R]) :- atom(H),term_to_atom(Term, H),convert(T, R).
-convert([], []). 
+convert([H|T], [H|R]) :-
+    var(H), % If H is a variable, leave it unchanged
+    convert(T, R).
+
+convert([H|T], [N|R]) :-
+    number(H), % If H is already a number, leave it unchanged
+    N = H,
+    convert(T, R).
+
+convert([H|T], [N|R]) :-
+    atom_chars(H, [First|_]), % Check if H starts with a capital letter
+    char_type(First, upper),
+    var(N), % Ensure N is a variable
+    N = H, % Preserve the variable
+    convert(T, R).
+
+convert([H|T], [N|R]) :-
+    atom_number(H, N), % Convert H to a number if it an atom representing a number
+    convert(T, R).
+
+convert([H|T], [Term|R]) :-
+    atom(H), % If H is an atom, convert it to a term
+    term_to_atom(Term, H),
+    convert(T, R).
+
+convert([], []).

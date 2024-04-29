@@ -4,9 +4,9 @@
 :- use_module(library(ansi_term)).
 
 main_prog(NameOfFile) :- 
-    write("Parser Status: "), ansi_format([bold, fg(blue)], 'Started', []), nl,   
     read_file(NameOfFile, DataInFile),
     write(DataInFile),nl,
+    write("Parser Status: "), ansi_format([bold, fg(blue)], 'Started', []), nl,   
     program(Tree, DataInFile, []),
     write("Parse Tree Generation: "), ansi_format([bold, fg(blue)], 'Done', []), nl,
     write("Parse Tree: "), nl, write(Tree), nl,

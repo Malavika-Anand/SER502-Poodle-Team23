@@ -71,10 +71,10 @@ eval_cmd(if_elseif_condition(Condition,_Block1, ElIfCondition, _Block2, Block3),
 /*
  * WHILE COMMAND
  */
-eval_cmd(while_command(Condition,_C), Env, Env) :- eval_condition(Condition,Env,false).
+eval_cmd(while_command(Condition,_Block), Env, Env) :- eval_condition(Condition,Env,false).
 eval_cmd(while_command(Condition,Block), Env, NewEnv) :- eval_condition(Condition,Env,true),
     						eval_block(Block, Env, Env1),
-    						eval_cmd(while(Condition,Block), Env1, NewEnv).
+    						eval_cmd(while_command(Condition,Block), Env1, NewEnv).
 
 
 /*
@@ -96,14 +96,14 @@ eval_cmd(for_loop_command(Assignment, Condition, VariableIncDecExpr, Block), Env
  */
 
 eval_cmd(compact_ForLoop_command(VarName, E1, E2, Block), Env, NewEnv) :- 
-    eval_cmd(assignment(variable_name(VarName), E1), Env, Env1),
-   	eval_condition(condition(E1, t_comparison_operator(>), E2), Env1, false),
-    eval_for_loop(condition(VarName, <=, E2), pre_increment(VarName), Block, Env1, NewEnv).
+    eval_cmd(assignment_exp(VarName, E1), Env, Env1),
+   	eval_condition(condition(E1, comparison_operator(>), E2), Env1, false),
+    eval_for_loop(condition(VarName, comparison_operator(<=), E2), pre_increment(VarName), Block, Env1, NewEnv).
 
 eval_cmd(compact_ForLoop_command(VarName, E1, E2, Block), Env, NewEnv) :- 
-    eval_cmd(assignment(variable_name(VarName), E1), Env, Env1),
-   	eval_condition(condition(E1, t_comparison_operator(<), E2), Env1, false),
-    eval_for_loop(condition(VarName, >=, E2), pre_decrement(VarName), Block, Env1, NewEnv).
+    eval_cmd(assignment_exp(VarName, E1), Env, Env1),
+   	eval_condition(condition(E1, comparison_operator(<), E2), Env1, false),
+    eval_for_loop(condition(VarName, comparison_operator(>=), E2), pre_decrement(VarName), Block, Env1, NewEnv).
 
 /* 
  * HELPER PREDICATES 
@@ -169,13 +169,13 @@ eval_expression(decrement(variable_name(VarName)), Env, NewEnv) :- lookup(VarNam
 
 %eval_expression(variable_name(Name), Env, Name) :- not(lookup(Name, _, Env)), string(Name).
 %NOT - !!
-eval_expression(boolean(logical_operator(Operator), E1), Env, Result) :-
+eval_expression(boolean(logical_operation(Operator), E1), Env, Result) :-
     Operator = '!!',
     eval_expression(E1, Env, R1),
     not(R1, Result).
 
 % AND - && , OR - ||
-eval_expression(boolean(E1, logical_operator(Operator), E2), Env, Result) :-
+eval_expression(boolean(E1, logical_operation(Operator), E2), Env, Result) :-
     eval_expression(E1, Env, R1),
     eval_expression(E2, Env, R2),
     eval_bool(R1, Operator, R2, Result).
@@ -210,10 +210,10 @@ eval_comparison(Val1, >=, Val2, true)  :- Val1 >= Val2.
 eval_comparison(Val1, >=, Val2, false)  :- Val1 < Val2.
 eval_comparison(Val1, <=, Val2, true)  :- Val1 =< Val2.
 eval_comparison(Val1, <=, Val2, false)  :- Val1 > Val2.
-eval_comparison(Val1, ==, Val2, true)  :- Val1 =:= Val2.
-eval_comparison(Val1, ==, Val2, false)  :- Val1 =\= Val2.
-eval_comparison(Val1, "!!=", Val2, true)  :- Val1 =\= Val2.
-eval_comparison(Val1, "!!=", Val2, false)  :- Val1 =:= Val2.
+eval_comparison(Val1, ==, Val2, true)  :- Val1 \= Val2.
+eval_comparison(Val1, ==, Val2, false)  :- Val1 = Val2.
+eval_comparison(Val1, '!!=', Val2, true)  :- Val1 \= Val2.
+eval_comparison(Val1, '!!=', Val2, false)  :- Val1 = Val2.
 
 %setting up the default values for declaration
 get_default_value(Type, _Env, Value) :- Type = string, Value = "".
@@ -236,15 +236,17 @@ lookup(VarName,[],_Value) :- write(VarName), write(" not found"), !.
 /* 1. update the Env with variable-value pairs provided -> update(Name, Value, Env, NewEnv) */
 update(VarName,_Value,[],[]):-  write("the env is empty, cannot update "), write(VarName), !.
 update(VarName, Value, [(bool, VarName,_)|Tail], [(bool, VarName, Value)|Tail]) :- member(Value, [true,false]).
-update(VarName, Value, [(int , VarName, _) | Tail], [(int, VarName, Value) | Tail]) :- integer(Value).
-update(VarName, Value, [(float, VarName,_)|Tail], [(float, VarName, Value)|Tail]) :- float(Value).
-update(VarName, Value, [(string, VarName,_)|Tail], [(string, VarName, Value)|Tail]) :- string(Value).
+%update(VarName, Value, [(int , VarName, _) | _], []):- integer(Value).
+update(Name, Value, [(int , Name, _) | Env], [(int, Name, Value) | Env]) :- 
+    integer(Value).
+update(VarName, Value, [(float, VarName,_)|Tail], [(int, VarName, Value)|Tail]) :- float(Value).
+update(VarName, Value, [(string, VarName,_)|Tail], [(int, VarName, Value)|Tail]) :- string(Value).
 update(VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_,VarName,_), update(VarName, Value, Tail, UpdatedTail). 
 
-update(VarName, Value, [(int , VarName, _) | _], _)  :- not(integer(Value)), write("cannot assign other datatype to int variable"), !.
-update(VarName, Value, [(float, VarName, _) | _], _)  :- not(float(Value)),  write("cannot assign other datatype to float variable"),!.
-update(VarName, Value, [(bool , VarName, _) | _], _)  :- not(member(Value, [true, false])), write("cannot assign other datatype to bool variable"),!.
-update(VarName, Value, [(string, VarName, _) | _], _) :- not(string(Value)) , write("cannot assign other datatype to string variable"),!.
+update(VarName, Value, [(int , VarName, _) | _], _)  :- not(integer(Value)), write("cannot assign other datatype to int varaible"), !.
+update(VarName, Value, [(float, VarName, _) | _], _)  :- not(float(Value)),  write("cannot assign other datatype to float varaible"),!.
+update(VarName, Value, [(bool , VarName, _) | _], _)  :- not(member(Value, [true, false])), write("cannot assign other datatype to bool varaible"),!.
+update(VarName, Value, [(string, VarName, _) | _], _) :- not(string(Value)) , write("cannot assign other datatype to string varaible"),!.
 
 /* 2. update(Type,VarName, Value, Env, NewEnv) */
 update(Type, VarName, Value, [], [(Type, VarName, Value)]) :- Type=int,integer(Value).
@@ -257,6 +259,6 @@ update(Type,_VarName, Value, [], _)  :- Type=float,not(float(Value)),  write("ca
 update(Type,_VarName, Value, [], _)  :- Type=bool,not(member(Value, [true, false])), write("cannot assign other datatype to bool varaible"),!.
 update(Type,_VarName, Value, [], _) :- Type=string,not(string(Value)) , write("cannot assign other datatype to string varaible"),!.
 
-%should not allow to redefining the same variable twice, regardless of the type and Env remians the same
+%should not allow to redine the same var twice, regardless of the type and Env remians the same
 update(Type, VarName, Value, [(Type, VarName, _)| Tail], [(Type, VarName, Value)| Tail]) :- write("cannot redefine variable"),!.
 update(Type, VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_,VarName,_), update(Type, VarName, Value, Tail, UpdatedTail). 
