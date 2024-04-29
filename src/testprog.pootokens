@@ -38,6 +38,11 @@ boolVar
 =
 true
 ;
+string
+s
+=
+"hiString"
+;
 float
 floatVar
 =

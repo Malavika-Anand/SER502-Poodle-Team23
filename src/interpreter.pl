@@ -236,11 +236,9 @@ lookup(VarName,[],_Value) :- write(VarName), write(" not found"), !.
 /* 1. update the Env with variable-value pairs provided -> update(Name, Value, Env, NewEnv) */
 update(VarName,_Value,[],[]):-  write("the env is empty, cannot update "), write(VarName), !.
 update(VarName, Value, [(bool, VarName,_)|Tail], [(bool, VarName, Value)|Tail]) :- member(Value, [true,false]).
-%update(VarName, Value, [(int , VarName, _) | _], []):- integer(Value).
-update(Name, Value, [(int , Name, _) | Env], [(int, Name, Value) | Env]) :- 
-    integer(Value).
-update(VarName, Value, [(float, VarName,_)|Tail], [(int, VarName, Value)|Tail]) :- float(Value).
-update(VarName, Value, [(string, VarName,_)|Tail], [(int, VarName, Value)|Tail]) :- string(Value).
+update(VarName, Value, [(int , VarName, _)|Tail], [(int, VarName, Value)|Tail]):- integer(Value).
+update(VarName, Value, [(float, VarName,_)|Tail], [(float, VarName, Value)|Tail]) :- float(Value).
+update(VarName, Value, [(string, VarName,_)|Tail], [(string, VarName, Value)|Tail]) :- string(Value).
 update(VarName, Value, [H|Tail], [H|UpdatedTail]) :- H \= (_,VarName,_), update(VarName, Value, Tail, UpdatedTail). 
 
 update(VarName, Value, [(int , VarName, _) | _], _)  :- not(integer(Value)), write("cannot assign other datatype to int varaible"), !.

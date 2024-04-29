@@ -5,6 +5,7 @@ int i = 5;
 int z = x + y - i;
 int j;
 bool boolVar = true;
+string s = "hiString";
 float floatVar = 10.5;
 print>>"PRINT STATEMENT EXECUTED";
 print>>x;
