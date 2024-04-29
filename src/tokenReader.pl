@@ -1,45 +1,45 @@
-:- module(read_file, [read_file/2]).
+:- module(file_reader, [file_reader/2]).
 
-read_file(FileName, ConvertedData) :-
-    open(FileName, read, Stream),
-    read_stream(Stream, FileData),
-    convert(FileData, ConvertedData), !,
+file_reader(TokenFile, TokenizedData) :-
+    open(TokenFile, read, Stream),
+    stream_reader(Stream, DataInFile),
+    convertedData(DataInFile, TokenizedData), !,
     close(Stream).
 
 % READING CURRENT LINE AND CONVERTING INTO CHARACTERS
-read_stream(Stream, [CurrentLineCharacters | List]) :-
+stream_reader(Stream, [CurrChar | RemChar]) :-
     \+ at_end_of_stream(Stream),
-    read_line_to_codes(Stream, Codes),
-    atom_codes(CurrentLineCharacters, Codes),
-    read_stream(Stream, List), !.
+    read_line_to_codes(Stream, Coder),
+    atom_codes(CurrChar, Coder),
+    stream_reader(Stream, RemChar), !.
 
 % END OF LINE
-read_stream(Stream, []) :- at_end_of_stream(Stream).
+stream_reader(Stream, []) :- at_end_of_stream(Stream).
 
 % CONVERTS THE ATOMS TO NUMBERS IF ANY
-convert([H|T], [H|R]) :-
-    var(H), % If H is a variable, leave it unchanged
-    convert(T, R).
+convertedData([Head|Tail], [Head|RemNum]) :-
+    var(Head), % If Head is a variable, leave it unchanged
+    convertedData(Tail, RemNum).
 
-convert([H|T], [N|R]) :-
-    number(H), % If H is already a number, leave it unchanged
-    N = H,
-    convert(T, R).
+convertedData([Head|Tail], [Num|RemNum]) :-
+    number(Head), % If Head is already a number, leave it unchanged
+    Num = Head,
+    convertedData(Tail, RemNum).
 
-convert([H|T], [N|R]) :-
-    atom_chars(H, [First|_]), % Check if H starts with a capital letter
+convertedData([Head|Tail], [Num|RemNum]) :-
+    atom_chars(Head, [First|_]), % Check if Head starts with a capital letter
     char_type(First, upper),
-    var(N), % Ensure N is a variable
-    N = H, % Preserve the variable
-    convert(T, R).
+    var(Num), % Ensure Num is a variable
+    Num = Head, % Preserve the variable
+    convertedData(Tail, RemNum).
 
-convert([H|T], [N|R]) :-
-    atom_number(H, N), % Convert H to a number if it an atom representing a number
-    convert(T, R).
+convertedData([Head|Tail], [Num|RemNum]) :-
+    atom_number(Head, Num), % convertedData Head to a number if it an atom representing a number
+    convertedData(Tail, RemNum).
 
-convert([H|T], [Term|R]) :-
-    atom(H), % If H is an atom, convert it to a term
-    term_to_atom(Term, H),
-    convert(T, R).
+convertedData([Head|Tail], [Term|RemNum]) :-
+    atom(Head), % If Head is an atom, convertedData it to a term
+    term_to_atom(Term, Head),
+    convertedData(Tail, RemNum).
 
-convert([], []).
+convertedData([], []).

@@ -6,9 +6,7 @@ import argparse
 
 # Class for defining colors for console output
 class Colors:
-    GREEN = '\033[92m'  # Green color code
     DEFAULT = '\033[0m'  # Default color code
-    BLUE = '\033[34m'    # Blue color code
     POODLE_TOKENS_EXTENSION = '.pootokens'  # File extension for tokens
 
 # All the Tokens used in Poodle
@@ -16,7 +14,7 @@ tokens = (
     'ASSIGN', 'DECREMENT', 'EQUAL', 'FLOAT', 'GREATER_EQUAL', 'GREATER', 'IDEN', 'INCREMENT',
     'LESSER_EQUAL', 'LESSER', 'MODULO', 'NUMBER', 'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'LPAREN',
     'RPAREN', 'NOT_EQUAL', 'POWER', 'SINGLE_QUOTES', 'STRING', 'LCURL', 'RCURL', 'COMMA', 'QMARK',
-    'SEMICOLON', 'COLON', 'LSQUARE', 'RSQUARE', 'PERIOD', 'EXCLAMATION', 'PRINT', 'SPACE', 'EQUAL','NOT','OR_OPERATOR', 'AND_OPERATOR'
+    'SEMICOLON', 'COLON', 'LSQUARE', 'RSQUARE', 'PERIOD', 'EXCLAMATION', 'PRINT', 'SPACE', 'OR_OPERATOR', 'AND_OPERATOR', 'NOT_OPERATOR'
 )
 
 # Regular expression rules for simple tokens
@@ -28,20 +26,19 @@ t_LPAREN = r'\('         # Left parenthesis
 t_RPAREN = r'\)'         # Right parenthesis
 t_DECREMENT = r'\--'     # Decrement operator
 t_INCREMENT = r'\++'     # Increment operator
-t_FLOAT = r'\d+\.\d+'   # Floating point number
-t_GREATER_EQUAL = r'>=' # Greater than or equal to
-t_GREATER = r'>'        # Greater than
-t_LESSER_EQUAL = r'<='  # Lesser than or equal to
-t_LESSER = r'<'         # Lesser than
-t_MODULO = r'%'         # Modulo operator
-t_NOT_EQUAL = r'!!='    # Not equal to
-t_NUMBER = r'\d+'       # Integer number
-t_POWER = r'\^'         # Power operator
-t_SINGLE_QUOTES = r'\'' # Single quotes
-t_ASSIGN = r'='         # Assignment operator
-t_STRING = r'\".*?\"'   # String enclosed in double quotes
-t_EQUAL = r'\=='   
-t_NOT = r'!!' 
+t_FLOAT = r'\d+\.\d+'    # Floating point number
+t_GREATER_EQUAL = r'>='  # Greater than or equal to
+t_GREATER = r'>'         # Greater than
+t_LESSER_EQUAL = r'<='   # Lesser than or equal to
+t_LESSER = r'<'          # Lesser than
+t_MODULO = r'%'          # Modulo operator
+t_NOT_EQUAL = r'!!='     # Not equal to
+t_NUMBER = r'\d+'        # Integer number
+t_POWER = r'\^'          # Power operator
+t_SINGLE_QUOTES = r'\''  # Single quotes
+t_ASSIGN = r'='          # Assignment operator
+t_STRING = r'\".*?\"'    # String enclosed in double quotes
+t_NOT_OPERATOR = r'!!'   # Not operator
 
 
 # Regex for Tokens with Action Code
@@ -59,11 +56,12 @@ t_COLON = r':'           # Colon
 t_LSQUARE = r'\['        # Left square bracket
 t_RSQUARE = r'\]'        # Right square bracket
 t_PERIOD = r'\.'         # Period
-t_EXCLAMATION = r'\!'     # Exclamation mark
-t_PRINT = r'\>>'
-t_SPACE = r'\s+'     # Blank space
+t_EXCLAMATION = r'\!'    # Exclamation mark
+t_PRINT = r'\>>'         # Print Operator
+t_SPACE = r'\s+'         # Blank space
 t_OR_OPERATOR = r'\|\|'  # OR Operator
 t_AND_OPERATOR = r'&&'   # AND Operator
+
 
 
 # Error handling rule
@@ -91,25 +89,24 @@ def read_input_file(filename):
             data = input_file.read()  # Read file content
     except FileNotFoundError:
         print("File Does Not Exist: ", sys.argv[1])  # Print error if file not found
-    print("Source Code: " + Colors.GREEN + 'Read Successfully' + Colors.DEFAULT)  # Print success message
+    print("Source Code: " + 'Read Successfully' + Colors.DEFAULT)  # Print success message
     return data  # Return file content
 
 # Function to write tokens to file
 def write_tokens_to_file(tokens, filename):
     with open(filename, "w") as file:
         for tok in tokens:
-            if tok.value == '>>' or tok.value == '(' or tok.value == ')' or tok.value == '{' or tok.value == '}' or tok.value == '||' or tok.value == '!!' or tok.value == '!!=' or tok.value == '==':
-                file.write("'{}'\n".format(tok.value))
-            elif tok.value == ' ' or tok.value == '\n':
-                continue
-            else:
-                file.write("{}\n".format(tok.value))
-        print("Tokens Written in " + filename + ": " + Colors.GREEN +
+            if tok.value.strip():  # Check if the token value is not empty or only whitespace
+                if tok.value == '>>' or tok.value == '(' or tok.value == ')' or tok.value == '{' or tok.value == '}' or tok.value == '||' or tok.value == '!!' or tok.value == '!!=':
+                    file.write("'{}'\n".format(tok.value))
+                else:
+                    file.write("{}\n".format(tok.value))
+        print("Tokens Written in " + filename + ": " +
               'Writing Successful' + Colors.DEFAULT)  # Print success message
 
 # Main function
 if __name__ == '__main__':
-    print(Colors.BLUE + "Starting POODLE Lexer" + Colors.DEFAULT)  # Print starting message in blue
+    print("Starting POODLE Lexer" + Colors.DEFAULT)  # Print starting message
     parsed_args = parse_args()  # Parse command line arguments
     input_filename = parsed_args.input[0]  # Get input filename from arguments
     output_filename = parsed_args.input[0][:-4] + Colors.POODLE_TOKENS_EXTENSION  # Generate output filename
@@ -118,7 +115,3 @@ if __name__ == '__main__':
     lexer.input(file_data)  # Input data to lexer
     tokens = list(lexer)  # Get list of tokens
     write_tokens_to_file(tokens, output_filename)  # Write tokens to file
-
-    should_evaluate = parsed_args.evaluate  # Check if evaluate flag is set
-    if should_evaluate:
-        os.system("swipl -g \"main('" + output_filename + "')\" main.pl")  # Execute evaluation command

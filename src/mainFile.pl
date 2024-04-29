@@ -4,13 +4,15 @@
 :- use_module(library(ansi_term)).
 
 main_prog(NameOfFile) :- 
-    read_file(NameOfFile, DataInFile),
-    write(DataInFile),nl,
-    write("Parser Status: "), ansi_format([bold, fg(blue)], 'Started', []), nl,   
+    write("Reading Token File: "), nl,
+    file_reader(NameOfFile, DataInFile),
+    write("Contents of Token File: "), nl,
+    write(DataInFile), nl,
+    write("Parser Status: Started"), nl,   
     program(Tree, DataInFile, []),
-    write("Parse Tree Generation: "), ansi_format([bold, fg(blue)], 'Done', []), nl,
+    write("Parse Tree Generation: Generating"), nl,
     write("Parse Tree: "), nl, write(Tree), nl,
-    write("Interpreter Status: "), ansi_format([bold, fg(blue)], 'Started', []), nl,
+    write("Interpreter Status: Started"), nl,
     eval_program(Tree, UpdatedEnv), nl,
-    write("Interpreter: "), ansi_format([bold, fg(blue)], 'Successful', []), nl,
-    write("Updated Environment: "), nl, write(UpdatedEnv), nl.
+    write("Interpreter: Completed"), nl,
+    write("Updated Environment: Updated"), nl, write(UpdatedEnv), nl.
