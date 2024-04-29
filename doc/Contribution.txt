@@ -1,12 +1,11 @@
-SER 502 Project Team 23
+SER 502 Project Team 23 -- Poodle
 
-Milestone 1
-
+Milestone 1:
     - Git Hub Repository created with project structure.
     - Project Description Document: Written by all the team members through various in-person brainstorming meetings for language design.
 
-Future Contributions for Milestone 2(Final Submission):
-    - Malavika: Lexer
-    - Vipsa: Parser
-    - Shloka: interpreter
-    - All memebers: Test scripts
+Milestone 2 (Final Submission):
+    - Malavika Anand: Lexer and Token Reader
+    - Vipsa Kamani: Parser
+    - Shloka Pandya: Interpreter and Token Reader
+    - All Memebers: Test Scripts, Presentation and YouTube Demo Video
