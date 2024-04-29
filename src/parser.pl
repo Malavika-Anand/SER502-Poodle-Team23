@@ -107,7 +107,7 @@ compact_Forloop_Command(compact_ForLoop_command(Variable, Expression1, Expressio
     [range],
     ['('],
     expression(Expression1),
-    [,],
+    [;],
     expression(Expression2),
     [')'],
     block(Block).
@@ -137,7 +137,7 @@ factor(X) -->
     check_Variable_Name(X) |
     value(X).
 
-boolean_operator_not(logical_not(Operator), [Operator | Tail], Tail) :-
+boolean_operator_not(logical_operation(Operator), [Operator | Tail], Tail) :-
     member(Operator, ['!!']).
 boolean_operator(logical_operation(Operator), [Operator | Tail], Tail) :-
     member(Operator,[&&,'||']).
@@ -198,7 +198,7 @@ data_type(dataType(Head), [Head | T], T) :-
     member(Head, [int, float, bool, string]).
 
 comparison_operator(comparison_operator(Head), [Head | T], T) :-
-    member(Head, [<, >, <=, >=, ==, '!=']).
+    member(Head, [<, >, <=, >=, ==, '!!=']).
 
 check_Int_value(integer(Var), [Var | Tail], Tail) :- integer(Var).
 check_Float_value(float(Var), [Var | Tail], Tail) :- float(Var).
